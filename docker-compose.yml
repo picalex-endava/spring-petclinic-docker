@@ -78,9 +78,26 @@ services:
     depends_on:
       - prometheus
       - loki
+      - jaeger
     labels:
       logging: "promtail"
       application: "grafana"
+  
+  jaeger:
+    image: jaegertracing/jaeger:latest
+    ports:
+      - 16686:16686
+      - 4317:4317
+      - 4318:4318
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=memory
+      - UI_CONFIG_PATH=/etc/jaeger/ui.json
+    volumes:
+      - ./monitoring/jaeger-ui.json:/etc/jaeger/ui.json
+    labels:
+      logging: "promtail"
+      application: "jaeger"
   
   loki:
     image: grafana/loki:latest

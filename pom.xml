@@ -26,6 +26,10 @@
     <jacoco.version>0.8.7</jacoco.version>
     <nohttp-checkstyle.version>0.0.10</nohttp-checkstyle.version>
     <spring-format.version>0.0.31</spring-format.version>
+    
+    <!-- OpenTelemetry versions -->
+    <opentelemetry.version>1.18.0</opentelemetry.version>
+    <micrometer-tracing.version>1.0.0</micrometer-tracing.version>
 
   </properties>
 
@@ -38,6 +42,16 @@
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-tracing-bridge-otel</artifactId>
+      <version>${micrometer-tracing.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-exporter-otlp</artifactId>
+      <version>${opentelemetry.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
