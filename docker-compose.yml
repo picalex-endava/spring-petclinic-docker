@@ -16,7 +16,7 @@ services:
     depends_on:
       - mysqlserver
     labels:
-      logging: "promtail"
+      logging: "alloy"
       application: "petclinic"
     
   mysqlserver:
@@ -33,7 +33,7 @@ services:
       - mysql_data:/var/lib/mysql
       - mysql_config:/etc/mysql/conf.d
     labels:
-      logging: "promtail"
+      logging: "alloy"
       application: "mysql"
   
   mysql-exporter:
@@ -47,7 +47,7 @@ services:
     depends_on:
       - mysqlserver
     labels:
-      logging: "promtail"
+      logging: "alloy"
       application: "mysql-exporter"
   
  
@@ -62,7 +62,7 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
     labels:
-      logging: "promtail"
+      logging: "alloy"
       application: "prometheus"
   
   grafana:
@@ -80,7 +80,7 @@ services:
       - loki
       - jaeger
     labels:
-      logging: "promtail"
+      logging: "alloy"
       application: "grafana"
   
   jaeger:
@@ -96,7 +96,7 @@ services:
     volumes:
       - ./monitoring/jaeger-ui.json:/etc/jaeger/ui.json
     labels:
-      logging: "promtail"
+      logging: "alloy"
       application: "jaeger"
   
   loki:
@@ -108,21 +108,23 @@ services:
       - loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     labels:
-      logging: "promtail"
+      logging: "alloy"
       application: "loki"
   
-  promtail:
-    image: grafana/promtail:latest
+  alloy:
+    image: grafana/alloy:latest
+    ports:
+      - 12345:12345
     volumes:
-      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
+      - ./monitoring/alloy-config.yaml:/etc/alloy/config.yaml
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    command: -config.file=/etc/promtail/config.yml
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.yaml
     depends_on:
       - loki
     labels:
-      logging: "promtail"
-      application: "promtail"
+      logging: "alloy"
+      application: "alloy"
 
 volumes:
   mysql_data:

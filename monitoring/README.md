@@ -11,6 +11,8 @@ cd spring-petclinic-docker
 docker compose up -d
 ```
 
+![alt text](static/image-4.png)
+
 ## Access Points
 
 - **Grafana**: http://localhost:3000 (admin/admin)
