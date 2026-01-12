@@ -15,6 +15,9 @@ services:
       - ./:/app
     depends_on:
       - mysqlserver
+    labels:
+      logging: "promtail"
+      application: "petclinic"
     
   mysqlserver:
     image: mysql:8
@@ -29,6 +32,84 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - mysql_config:/etc/mysql/conf.d
+    labels:
+      logging: "promtail"
+      application: "mysql"
+  
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    ports:
+      - 9104:9104
+    volumes:
+      - ./monitoring/mysql-exporter.cnf:/cfg/.my.cnf
+    command:
+      - "--config.my-cnf=/cfg/.my.cnf"
+    depends_on:
+      - mysqlserver
+    labels:
+      logging: "promtail"
+      application: "mysql-exporter"
+  
+ 
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - 9090:9090
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    labels:
+      logging: "promtail"
+      application: "prometheus"
+  
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+      - loki
+    labels:
+      logging: "promtail"
+      application: "grafana"
+  
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - 3100:3100
+    volumes:
+      - ./monitoring/loki-config.yml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    labels:
+      logging: "promtail"
+      application: "loki"
+  
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    labels:
+      logging: "promtail"
+      application: "promtail"
+
 volumes:
   mysql_data:
   mysql_config:
+  prometheus_data:
+  grafana_data:
+  loki_data:
