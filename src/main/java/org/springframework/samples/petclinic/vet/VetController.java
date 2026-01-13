@@ -17,6 +17,8 @@ package org.springframework.samples.petclinic.vet;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +37,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 class VetController {
 
+	private static final Logger log = LoggerFactory.getLogger(VetController.class);
+
 	private final VetRepository vets;
 
 	public VetController(VetRepository clinicService) {
@@ -43,11 +47,13 @@ class VetController {
 
 	@GetMapping("/vets.html")
 	public String showVetList(@RequestParam(defaultValue = "1") int page, Model model) {
+		log.info("Fetching vet list: page={}", page);
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for Object-Xml mapping
 		Vets vets = new Vets();
 		Page<Vet> paginated = findPaginated(page);
 		vets.getVetList().addAll(paginated.toList());
+		log.debug("Found {} vets on page {}", paginated.getNumberOfElements(), page);
 		return addPaginationModel(page, paginated, model);
 
 	}

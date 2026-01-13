@@ -20,6 +20,8 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +45,8 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 class OwnerController {
+
+	private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -71,11 +75,15 @@ class OwnerController {
 
 	@PostMapping("/owners/new")
 	public String processCreationForm(@Valid Owner owner, BindingResult result) {
+		log.info("Creating new owner: lastName={}", owner.getLastName());
 		if (result.hasErrors()) {
+			log.warn("Owner creation failed due to validation errors: {}", result.getAllErrors());
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
 		else {
 			this.owners.save(owner);
+			log.info("Owner created successfully: id={}, name={} {}", owner.getId(), owner.getFirstName(),
+					owner.getLastName());
 			return "redirect:/owners/" + owner.getId();
 		}
 	}

@@ -6,7 +6,12 @@ RUN ./mvnw dependency:resolve
 COPY src ./src
 
 FROM base as development
-CMD ["./mvnw", "spring-boot:run", "-Dspring-boot.run.profiles=mysql", "-Dspring-boot.run.jvmArguments='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000'"]
+RUN apt-get update && apt-get install -y curl && \
+    curl -L -o /opt/opentelemetry-javaagent.jar \
+    https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar && \
+    apt-get remove -y curl && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+
+CMD ["./mvnw", "spring-boot:run", "-Dspring-boot.run.profiles=mysql", "-Dspring-boot.run.jvmArguments=-javaagent:/opt/opentelemetry-javaagent.jar -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"]
 
 FROM base as build
 RUN ./mvnw package
@@ -14,5 +19,11 @@ RUN ./mvnw package
 
 FROM eclipse-temurin:21-jre-jammy as production
 EXPOSE 8080
+
+RUN apt-get update && apt-get install -y curl && \
+    curl -L -o /opt/opentelemetry-javaagent.jar \
+    https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar && \
+    apt-get remove -y curl && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/target/spring-petclinic-*.jar /spring-petclinic.jar
-CMD ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/spring-petclinic.jar"]
+CMD ["java", "-javaagent:/opt/opentelemetry-javaagent.jar", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/spring-petclinic.jar"]

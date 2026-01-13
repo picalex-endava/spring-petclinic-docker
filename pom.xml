@@ -28,8 +28,9 @@
     <spring-format.version>0.0.31</spring-format.version>
     
     <!-- OpenTelemetry versions -->
-    <opentelemetry.version>1.18.0</opentelemetry.version>
-    <micrometer-tracing.version>1.0.0</micrometer-tracing.version>
+    <opentelemetry.version>1.32.0</opentelemetry.version>
+    <micrometer-tracing.version>1.2.0</micrometer-tracing.version>
+    <logstash-logback-encoder.version>7.2</logstash-logback-encoder.version>
 
   </properties>
 
@@ -52,6 +53,16 @@
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-exporter-otlp</artifactId>
       <version>${opentelemetry.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry.instrumentation</groupId>
+      <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+      <version>${opentelemetry.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.logstash.logback</groupId>
+      <artifactId>logstash-logback-encoder</artifactId>
+      <version>${logstash-logback-encoder.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

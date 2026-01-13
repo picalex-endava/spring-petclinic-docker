@@ -8,8 +8,17 @@ services:
       - 8000:8000
       - 8080:8080
     environment:
-      - SERVER_PORT=8080
-      - MYSQL_URL=jdbc:mysql://mysqlserver/petclinic
+      - SERVER_PORT=${SERVER_PORT}
+      - MYSQL_URL=${MYSQL_URL}
+      - OTEL_SERVICE_NAME=${OTEL_SERVICE_NAME}
+      - OTEL_TRACES_EXPORTER=${OTEL_TRACES_EXPORTER}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL}
+      - OTEL_LOGS_EXPORTER=${OTEL_LOGS_EXPORTER}
+      - OTEL_METRICS_EXPORTER=${OTEL_METRICS_EXPORTER}
+      - OTEL_RESOURCE_ATTRIBUTES=${OTEL_RESOURCE_ATTRIBUTES}
+      - OTEL_INSTRUMENTATION_COMMON_DEFAULT_ENABLED=${OTEL_INSTRUMENTATION_COMMON_DEFAULT_ENABLED}
+      - ENVIRONMENT=${ENVIRONMENT}
     volumes:
       - ./:/app
     depends_on:
@@ -23,8 +32,8 @@ services:
     ports:
       - 3306:3306
     environment:
-      - MYSQL_ROOT_PASSWORD=
-      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=${MYSQL_ALLOW_EMPTY_PASSWORD}
       - MYSQL_USER=${DB_USER}
       - MYSQL_PASSWORD=${DB_PASSWORD}
       - MYSQL_DATABASE=${DB_NAME}
@@ -70,7 +79,7 @@ services:
       - 3000:3000
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_SIGN_UP=${GF_USERS_ALLOW_SIGN_UP}
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
@@ -89,12 +98,12 @@ services:
       - 4317:4317
       - 4318:4318
     environment:
-      - COLLECTOR_OTLP_ENABLED=true
-      - SPAN_STORAGE_TYPE=badger
-      - BADGER_EPHEMERAL=false
-      - BADGER_DIRECTORY_VALUE=/var/lib/jaeger/data
-      - BADGER_DIRECTORY_KEY=/var/lib/jaeger/keys
-      - UI_CONFIG_PATH=/etc/jaeger/ui.json
+      - COLLECTOR_OTLP_ENABLED=${COLLECTOR_OTLP_ENABLED}
+      - SPAN_STORAGE_TYPE=${SPAN_STORAGE_TYPE}
+      - BADGER_EPHEMERAL=${BADGER_EPHEMERAL}
+      - BADGER_DIRECTORY_VALUE=${BADGER_DIRECTORY_VALUE}
+      - BADGER_DIRECTORY_KEY=${BADGER_DIRECTORY_KEY}
+      - UI_CONFIG_PATH=${UI_CONFIG_PATH}
     volumes:
       - ./monitoring/jaeger-ui.json:/etc/jaeger/ui.json
       - jaeger_data:/var/lib/jaeger

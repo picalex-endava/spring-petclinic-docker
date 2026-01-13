@@ -4,6 +4,28 @@ Simple observability stack for Spring PetClinic: Prometheus, Grafana, Loki, and 
 
 ## Quick Start
 
+### 1. Configure MySQL Exporter Credentials
+
+Copy the example file and add your database credentials:
+
+```bash
+cp monitoring/mysql-exporter.cnf.example monitoring/mysql-exporter.cnf
+cp monitoring/.env.example monitoring/.env
+```
+
+Edit `monitoring/mysql-exporter.cnf` with your MySQL credentials:
+```ini
+[client]
+user=your_username
+password=your_password
+host=mysqlserver
+port=3306
+```
+
+Edit `monitoring/.env` with your MySQL credentials:
+
+### 2. Start Services
+
 All services run in Docker Compose:
 
 ```bash

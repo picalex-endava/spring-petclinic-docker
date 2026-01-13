@@ -17,3 +17,5 @@ _site/
 !petclinic.css
 .env
 .env.local
+monitoring/mysql-exporter.cnf
+monitoring/*.cnf

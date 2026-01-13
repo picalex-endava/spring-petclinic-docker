@@ -15,6 +15,8 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
@@ -33,6 +35,8 @@ import java.util.Collection;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+
+	private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -78,16 +82,22 @@ class PetController {
 
 	@PostMapping("/pets/new")
 	public String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {
+		log.info("Creating new pet for owner: ownerId={}, petName={}, petType={}", owner.getId(), pet.getName(),
+				pet.getType());
 		if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
+			log.warn("Duplicate pet name detected: petName={}, ownerId={}", pet.getName(), owner.getId());
 			result.rejectValue("name", "duplicate", "already exists");
 		}
 		owner.addPet(pet);
 		if (result.hasErrors()) {
+			log.warn("Pet creation failed due to validation errors: {}", result.getAllErrors());
 			model.put("pet", pet);
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
 		else {
 			this.owners.save(owner);
+			log.info("Pet created successfully: petId={}, name={}, ownerId={}", pet.getId(), pet.getName(),
+					owner.getId());
 			return "redirect:/owners/{ownerId}";
 		}
 	}
