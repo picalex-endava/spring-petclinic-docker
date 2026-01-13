@@ -42,6 +42,19 @@ MySQL Dashboard:
 
 ![MySQL](static/image-1.png)
 
+### Alerts
+Alerts:
+
+![alerts](static/image-5.png)
+
+Example of taking java down:
+
+![alt text](static/image-7.png)
+
+Webhook got notified:
+
+![alt text](static/image-6.png)
+
 ### View Logs
 1. Open Grafana → Explore
 2. Select "Loki" datasource
