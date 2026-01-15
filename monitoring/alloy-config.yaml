@@ -22,7 +22,7 @@ discovery.relabel "docker_relabel" {
 
   rule {
     source_labels = ["__meta_docker_container_name"]
-    target_label = "job"
+    target_label = "service"
   }
 }
 
@@ -37,81 +37,26 @@ loki.source.docker "docker" {
 loki.process "parse_logs" {
   forward_to = [loki.write.default.receiver]
 
-  // Try to extract log level from various formats
+  // Extract log level from Spring Boot format (e.g., "2026-01-15 10:21:53.189  INFO ...")
   stage.regex {
     expression = "^\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\s+(?P<level>TRACE|DEBUG|INFO|WARN|ERROR|FATAL)\\s+"
-    action     = "replace"
   }
 
+  // Extract log level from Maven format (e.g., "[INFO]")
   stage.regex {
     expression = "^\\[(?P<level>TRACE|DEBUG|INFO|WARN|WARNING|ERROR|FATAL)\\]"
-    action     = "replace"
   }
 
+  // Extract log level from structured logs (e.g., "level=info")
   stage.regex {
-    expression = "level=(?P<level>[a-z]+)"
-    action     = "replace"
+    expression = "\\blevel=(?P<level>trace|debug|info|warn|warning|error|fatal)"
   }
 
-  stage.regex {
-    expression = "\\blevel=(?P<level>ERROR|WARN|INFO|DEBUG|TRACE|error|warn|info|debug|trace)"
-    action     = "replace"
-  }
-
-  stage.regex {
-    expression = "\\[(?P<level>ERROR|WARNING|Note|Note)\\]"
-    action     = "replace"
-  }
-
-  // Normalize level label if it was captured
-  stage.label_replace {
-    source_label = "level"
-    target_label = "level"
-    regex        = "(TRACE|trace)"
-    replacement  = "trace"
-  }
-
-  stage.label_replace {
-    source_label = "level"
-    target_label = "level"
-    regex        = "(DEBUG|debug)"
-    replacement  = "debug"
-  }
-
-  stage.label_replace {
-    source_label = "level"
-    target_label = "level"
-    regex        = "(INFO|info)"
-    replacement  = "info"
-  }
-
-  stage.label_replace {
-    source_label = "level"
-    target_label = "level"
-    regex        = "(WARN|WARNING|warn|warning)"
-    replacement  = "warn"
-  }
-
-  stage.label_replace {
-    source_label = "level"
-    target_label = "level"
-    regex        = "(ERROR|error)"
-    replacement  = "error"
-  }
-
-  stage.label_replace {
-    source_label = "level"
-    target_label = "level"
-    regex        = "Note"
-    replacement  = "info"
-  }
-
-  // If no level was extracted, set default
-  stage.label_replace {
-    source_label = "level"
-    target_label = "level"
-    regex        = "^$"
-    replacement  = "unknown"
+  // If level was captured, ensure it's set as a label
+  stage.labels {
+    values = {
+      level = "",
+    }
   }
 }
 

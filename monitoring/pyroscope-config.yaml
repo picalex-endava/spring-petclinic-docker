@@ -1,0 +1,6 @@
+server:
+  http_listen_port: 4040
+  log_level: info
+
+analytics:
+  reporting_enabled: false

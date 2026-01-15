@@ -82,12 +82,12 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=${GF_USERS_ALLOW_SIGN_UP}
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     depends_on:
       - prometheus
       - loki
       - jaeger
+      - pyroscope
     labels:
       logging: "alloy"
       application: "grafana"
@@ -123,6 +123,18 @@ services:
     labels:
       logging: "alloy"
       application: "loki"
+
+  pyroscope:
+    image: grafana/pyroscope:latest
+    ports:
+      - 4040:4040
+    volumes:
+      - ./monitoring/pyroscope-config.yaml:/etc/pyroscope/config.yaml
+      - pyroscope_data:/pyroscope
+    command: -config.file=/etc/pyroscope/config.yaml
+    labels:
+      logging: "alloy"
+      application: "pyroscope"
   
   alloy:
     image: grafana/alloy:latest
@@ -146,3 +158,4 @@ volumes:
   grafana_data:
   loki_data:
   jaeger_data:
+  pyroscope_data:

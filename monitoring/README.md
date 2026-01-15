@@ -88,6 +88,9 @@ Webhook got notified:
 
 ![Jaeger](static/image-3.png)
 
+### Profiling with Pyroscope
+
+![profiling dashboard](image.png)
 ## Configuration Files
 
 - `prometheus.yml` - Metrics scrape config
