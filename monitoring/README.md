@@ -86,16 +86,19 @@ Webhook got notified:
 
 ### View Logs in Drilldown:
 
-![drilldown logs](static/image-2.png)
+![drilldown logs](static/image-10.png)
 
 ### View Traces
 1. Open Jaeger UI → http://localhost:16686
 
 ![Jaeger](static/image-3.png)
 
+![alt text](static/image-11.png)
+
 ### Profiling with Pyroscope
 
 ![profile types](static/image-1.png)
+
 ![profiling dashboard](static/image.png)
 ## Configuration Files
 

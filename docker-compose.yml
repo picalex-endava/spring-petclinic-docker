@@ -107,7 +107,6 @@ services:
       - BADGER_DIRECTORY_KEY=${BADGER_DIRECTORY_KEY}
       - UI_CONFIG_PATH=${UI_CONFIG_PATH}
     volumes:
-      - ./monitoring/jaeger-ui.json:/etc/jaeger/ui.json
       - jaeger_data:/var/lib/jaeger
     labels:
       logging: "alloy"
@@ -142,10 +141,10 @@ services:
     ports:
       - 12345:12345
     volumes:
-      - ./monitoring/alloy-config.yaml:/etc/alloy/config.yaml
+      - ./monitoring/alloy-config.alloy:/etc/alloy/config.alloy
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.yaml
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
     depends_on:
       - loki
     labels:
