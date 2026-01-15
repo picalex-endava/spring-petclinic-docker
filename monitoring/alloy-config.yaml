@@ -11,6 +11,12 @@ discovery.relabel "docker_relabel" {
 
   rule {
     source_labels = ["__meta_docker_container_name"]
+    regex = "/spring-petclinic-docker-(.+)-[0-9]+$"
+    target_label = "service"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
     regex = "/(.*)"
     target_label = "container"
   }
@@ -18,11 +24,6 @@ discovery.relabel "docker_relabel" {
   rule {
     source_labels = ["__meta_docker_container_log_stream"]
     target_label = "stream"
-  }
-
-  rule {
-    source_labels = ["__meta_docker_container_name"]
-    target_label = "service"
   }
 }
 
@@ -37,25 +38,27 @@ loki.source.docker "docker" {
 loki.process "parse_logs" {
   forward_to = [loki.write.default.receiver]
 
-  // Extract log level from Spring Boot format (e.g., "2026-01-15 10:21:53.189  INFO ...")
-  stage.regex {
-    expression = "^\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\s+(?P<level>TRACE|DEBUG|INFO|WARN|ERROR|FATAL)\\s+"
+  // Extract trace_id, span_id, and level from JSON format (logstash encoder output)
+  // Match: "trace_id":"f1050d1a42874f2e906d0b680942e826"
+  stage.json {
+    expressions = {
+      trace_id = "trace_id",
+      span_id = "span_id",
+      level = "level",
+    }
   }
 
-  // Extract log level from Maven format (e.g., "[INFO]")
+  // Fallback: Extract trace ID from Spring Boot text format (e.g., "[traceId=abc123 spanId=def456]")
   stage.regex {
-    expression = "^\\[(?P<level>TRACE|DEBUG|INFO|WARN|WARNING|ERROR|FATAL)\\]"
+    expression = "\\[traceId=(?P<trace_id>\\w+)\\s+spanId=(?P<span_id>\\w+)\\]"
   }
 
-  // Extract log level from structured logs (e.g., "level=info")
-  stage.regex {
-    expression = "\\blevel=(?P<level>trace|debug|info|warn|warning|error|fatal)"
-  }
-
-  // If level was captured, ensure it's set as a label
+  // If level was captured, ensure it's set as a label (uppercase for consistency)
   stage.labels {
     values = {
       level = "",
+      trace_id = "",
+      span_id = "",
     }
   }
 }
