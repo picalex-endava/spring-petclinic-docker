@@ -51,7 +51,7 @@ services:
       - ./monitoring/mysql-exporter.cnf:/cfg/.my.cnf
     command:
       - "--config.my-cnf=/cfg/.my.cnf"
-      - "--collector.slave_status=false"
+      - "--no-collect.slave_status"
     depends_on:
       - mysqlserver
     labels:

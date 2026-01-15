@@ -77,11 +77,15 @@ Webhook got notified:
 
 ![alt text](static/image-6.png)
 
-### View Logs
+### View Logs with Loki
 1. Open Grafana → Explore
 2. Select "Loki" datasource
 
 ![Loki](static/image-2.png)
+
+### View Logs in Drilldown:
+
+![drilldown logs](static/image-2.png)
 
 ### View Traces
 1. Open Jaeger UI → http://localhost:16686
@@ -90,7 +94,8 @@ Webhook got notified:
 
 ### Profiling with Pyroscope
 
-![profiling dashboard](image.png)
+![profile types](static/image-1.png)
+![profiling dashboard](static/image.png)
 ## Configuration Files
 
 - `prometheus.yml` - Metrics scrape config
