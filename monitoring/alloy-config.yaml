@@ -30,7 +30,89 @@ discovery.relabel "docker_relabel" {
 loki.source.docker "docker" {
   host       = "unix:///var/run/docker.sock"
   targets    = discovery.relabel.docker_relabel.output
+  forward_to = [loki.process.parse_logs.receiver]
+}
+
+// Process and parse logs
+loki.process "parse_logs" {
   forward_to = [loki.write.default.receiver]
+
+  // Try to extract log level from various formats
+  stage.regex {
+    expression = "^\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\s+(?P<level>TRACE|DEBUG|INFO|WARN|ERROR|FATAL)\\s+"
+    action     = "replace"
+  }
+
+  stage.regex {
+    expression = "^\\[(?P<level>TRACE|DEBUG|INFO|WARN|WARNING|ERROR|FATAL)\\]"
+    action     = "replace"
+  }
+
+  stage.regex {
+    expression = "level=(?P<level>[a-z]+)"
+    action     = "replace"
+  }
+
+  stage.regex {
+    expression = "\\blevel=(?P<level>ERROR|WARN|INFO|DEBUG|TRACE|error|warn|info|debug|trace)"
+    action     = "replace"
+  }
+
+  stage.regex {
+    expression = "\\[(?P<level>ERROR|WARNING|Note|Note)\\]"
+    action     = "replace"
+  }
+
+  // Normalize level label if it was captured
+  stage.label_replace {
+    source_label = "level"
+    target_label = "level"
+    regex        = "(TRACE|trace)"
+    replacement  = "trace"
+  }
+
+  stage.label_replace {
+    source_label = "level"
+    target_label = "level"
+    regex        = "(DEBUG|debug)"
+    replacement  = "debug"
+  }
+
+  stage.label_replace {
+    source_label = "level"
+    target_label = "level"
+    regex        = "(INFO|info)"
+    replacement  = "info"
+  }
+
+  stage.label_replace {
+    source_label = "level"
+    target_label = "level"
+    regex        = "(WARN|WARNING|warn|warning)"
+    replacement  = "warn"
+  }
+
+  stage.label_replace {
+    source_label = "level"
+    target_label = "level"
+    regex        = "(ERROR|error)"
+    replacement  = "error"
+  }
+
+  stage.label_replace {
+    source_label = "level"
+    target_label = "level"
+    regex        = "Note"
+    replacement  = "info"
+  }
+
+  // If no level was extracted, set default
+  stage.label_replace {
+    source_label = "level"
+    target_label = "level"
+    regex        = "^$"
+    replacement  = "unknown"
+  }
 }
 
 // Send logs to Loki
