@@ -41,6 +41,7 @@ docker compose up -d
 - **Prometheus**: http://localhost:9090
 - **Jaeger**: http://localhost:16686
 - **Loki**: http://localhost:3100 (API only)
+- **Pyroscope**: http://localhost:4040
 - **App**: http://localhost:8080
 
 ## What's Monitored
